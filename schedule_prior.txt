@@ -1,0 +1,55 @@
+#include <iostream>
+using namespace std;
+
+int main() {
+    int arrivalTimes[10], burstTimes[10], remainingBurstTimes[10];
+    int waitingTimes[10], turnaroundTimes[10], completionTimes[10], priorities[10];
+    int i, smallestPriorityIndex, completedProcesses = 0, currentTime, totalWaitingTime = 0;
+    double averageWaitingTime = 0, totalTurnaroundTime = 0, endTime;
+
+    cout << "Enter the number of processes: ";
+    int numberOfProcesses;
+    cin >> numberOfProcesses;
+
+    for (i = 0; i < numberOfProcesses; i++) {
+        cout << "\nEnter arrival time of process " << i + 1 << ": ";
+        cin >> arrivalTimes[i];
+        cout << "Enter burst time of process " << i + 1 << ": ";
+        cin >> burstTimes[i];
+        cout << "Enter priority of process " << i + 1 << ": ";
+        cin >> priorities[i];
+        remainingBurstTimes[i] = burstTimes[i];
+    }
+
+    priorities[9] = -1; // Set a sentinel value for priority comparison
+
+    for (currentTime = 0; completedProcesses != numberOfProcesses; currentTime++) {
+        smallestPriorityIndex = 9;
+        for (i = 0; i < numberOfProcesses; i++) {
+            if (arrivalTimes[i] <= currentTime && priorities[i] > priorities[smallestPriorityIndex] && remainingBurstTimes[i] > 0)
+                smallestPriorityIndex = i;
+        }
+        remainingBurstTimes[smallestPriorityIndex]--;
+        if (remainingBurstTimes[smallestPriorityIndex] == 0) {
+            completedProcesses++;
+            endTime = currentTime + 1;
+            completionTimes[smallestPriorityIndex] = endTime;
+            waitingTimes[smallestPriorityIndex] = endTime - arrivalTimes[smallestPriorityIndex] - burstTimes[smallestPriorityIndex];
+            turnaroundTimes[smallestPriorityIndex] = endTime - arrivalTimes[smallestPriorityIndex];
+        }
+    }
+
+    cout << "\nProcess\tBurst Time\tArrival Time\tWaiting Time\tTurnaround Time\tCompletion Time\tPriority\n";
+    for (i = 0; i < numberOfProcesses; i++) {
+        cout << "P" << i + 1 << "\t\t" << burstTimes[i] << "\t\t" << arrivalTimes[i] << "\t\t" << waitingTimes[i] << "\t\t"
+             << turnaroundTimes[i] << "\t\t" << completionTimes[i] << "\t\t" << priorities[i] << endl;
+        totalWaitingTime += waitingTimes[i];
+        totalTurnaroundTime += turnaroundTimes[i];
+    }
+
+    averageWaitingTime = totalWaitingTime / static_cast<double>(numberOfProcesses);
+    cout << "\nAverage waiting time = " << averageWaitingTime << endl;
+    cout << "Average turnaround time = " << totalTurnaroundTime / numberOfProcesses << endl;
+
+    return 0;
+}

@@ -1,0 +1,52 @@
+#include <semaphore.h>
+#include <iostream>
+#include <thread>
+#include <vector>
+#include <chrono>
+
+sem_t x, y;
+std::vector<std::thread> writerthreads, readerthreads;
+int readercount = 0;
+
+void reader() {
+    sem_wait(&x);
+    readercount++;
+    if (readercount == 1) {
+        sem_wait(&y);
+    }
+    sem_post(&x);
+    std::cout << "\nReader " << readercount << " is reading";
+    std::this_thread::sleep_for(std::chrono::milliseconds(3)); // Sleep for 3 milliseconds
+    sem_wait(&x);
+    readercount--;
+    if (readercount == 0) {
+        sem_post(&y);
+    }
+    sem_post(&x);
+    std::cout << "\nReader " << readercount + 1 << " is leaving";
+}
+
+void writer() {
+    std::cout << "\n Writer is trying to enter\n";
+    sem_wait(&y);
+    std::cout << "\nWriter is writing\n";
+    sem_post(&y);
+    std::cout << "\nWriter is leaving\n";
+}
+
+int main() {
+    int n;
+    std::cout << "Enter the number of readers and writers\n";
+    std::cin >> n;
+    sem_init(&x, 0, 1);
+    sem_init(&y, 0, 1);
+    for (int i = 0; i < n; i++) {
+        writerthreads.push_back(std::thread(writer));
+        readerthreads.push_back(std::thread(reader));
+    }
+    for (int i = 0; i < n; i++) {
+        writerthreads[i].join();
+        readerthreads[i].join();
+    }
+    return 0;
+}

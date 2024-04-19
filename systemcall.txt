@@ -1,0 +1,41 @@
+#include <iostream>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+int main() {
+    int status;
+    pid_t child_pid;
+    // Demonstrate 'cp' command
+    child_pid = fork();
+    if (child_pid == 0) {
+        // Child process
+        std::cout << "Child process (PID: " << getpid() << ") executing 'cp' command" << std::endl;
+        execlp("cp", "cp", "file.txt", "file_copy.txt", NULL);
+        // The above line replaces the current process with the 'cp' command
+    } else if (child_pid > 0) {
+        // Parent process
+        wait(&status);
+        std::cout << "Parent process (PID: " << getpid() << ") completed 'cp' command" << std::endl;
+    } else {
+        // Error forking
+        perror("Error forking 'cp' command");
+        return 1;
+    }
+    // Demonstrate 'grep' command
+    child_pid = fork();
+    if (child_pid == 0) {
+        // Child process
+        std::cout << "Child process (PID: " << getpid() << ") executing 'grep' command" << std::endl;
+        execlp("grep", "grep", "Hi", "file.txt", NULL);
+        // The above line replaces the current process with the 'grep' command
+    } else if (child_pid > 0) {
+        // Parent process
+        wait(&status);
+        std::cout << "Parent process (PID: " << getpid() << ") completed 'grep' command" << std::endl;
+    } else {
+        // Error forking
+        perror("Error forking 'grep' command");
+        return 1;
+    }
+    return 0;
+}

@@ -1,0 +1,58 @@
+#include <iostream>
+using namespace std;
+
+int main() {
+    const int MAX_PAGES = 1000; // Maximum number of pages
+    int incomingStream[MAX_PAGES]; // Array to store the page reference string
+    int page;
+    int pages = 0;
+
+    // Input page reference string
+    cout << "Enter the page reference string (-1 to end, maximum 1000 pages): ";
+    while (true) {
+        cin >> page;
+        if (page == -1 || pages >= MAX_PAGES) break;
+        incomingStream[pages++] = page;
+    }
+
+    int pageFaults = 0;
+    int pageHits = 0;
+    int frames;
+    cout << "Enter the number of frames: ";
+    cin >> frames;
+
+    int temp[frames];
+    for (int m = 0; m < frames; m++) {
+        temp[m] = -1;
+    }
+
+    cout << " Incoming \t Frame 1 \t Frame 2 \t Frame 3 \n";
+    for (int m = 0; m < pages; m++) {
+        int s = 0;
+        for (int n = 0; n < frames; n++) {
+            if (incomingStream[m] == temp[n]) {
+                s++;
+                pageHits++; // Increment hits counter
+                pageFaults--;
+            }
+        }
+        pageFaults++;
+        if ((pageFaults <= frames) && (s == 0)) {
+            temp[m] = incomingStream[m];
+        } else if (s == 0) {
+            temp[(pageFaults - 1) % frames] = incomingStream[m];
+        }
+        cout << endl;
+        cout << incomingStream[m] << "\t\t\t";
+        for (int n = 0; n < frames; n++) {
+            if (temp[n] != -1)
+                cout << " " << temp[n] << "\t\t\t";
+            else
+                cout << " - \t\t\t";
+        }
+    }
+
+    cout << "\nTotal Page Faults:\t" << pageFaults << endl;
+    cout << "Total Page Hits:\t" << pageHits << endl;
+    return 0;
+}

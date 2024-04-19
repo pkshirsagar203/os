@@ -1,0 +1,89 @@
+#include <iostream>
+using namespace std;
+
+int main() {
+    int num_frames, faults = 0;
+    cout << "Enter the number of frames: ";
+    cin >> num_frames;
+
+    int frames[num_frames];
+    int temp[num_frames];
+    int num_pages;
+    cout << "Enter the number of pages in the input stream: ";
+    cin >> num_pages;
+    int inputStream[num_pages];
+
+    cout << "Enter the page reference string:" << endl;
+    for (int i = 0; i < num_pages; i++) {
+        cin >> inputStream[i];
+    }
+
+    for (int i = 0; i < num_frames; i++) {
+        frames[i] = -1;
+    }
+
+    for (int i = 0; i < num_pages; i++) {
+        int flag1 = 0, flag2 = 0, flag3 = 0, position, max;
+        for (int j = 0; j < num_frames; j++) {
+            if (frames[j] == inputStream[i]) {
+                flag1 = flag2 = 1;
+                break;
+            }
+        }
+
+        if (flag1 == 0) {
+            for (int j = 0; j < num_frames; j++) {
+                if (frames[j] == -1) {
+                    faults++;
+                    frames[j] = inputStream[i];
+                    flag2 = 1;
+                    break;
+                }
+            }
+        }
+
+        if (flag2 == 0) {
+            for (int j = 0; j < num_frames; j++) {
+                temp[j] = -1;
+                for (int k = i + 1; k < num_pages; k++) {
+                    if (frames[j] == inputStream[k]) {
+                        temp[j] = k;
+                        break;
+                    }
+                }
+            }
+
+            for (int j = 0; j < num_frames; j++) {
+                if (temp[j] == -1) {
+                    position = j;
+                    flag3 = 1;
+                    break;
+                }
+            }
+
+            if (flag3 == 0) {
+                max = temp[0];
+                position = 0;
+
+                for (int j = 1; j < num_frames; j++) {
+                    if (temp[j] > max) {
+                        max = temp[j];
+                        position = j;
+                    }
+                }
+            }
+            frames[position] = inputStream[i];
+            faults++;
+        }
+
+        cout << endl;
+        for (int j = 0; j < num_frames; j++) {
+            cout << frames[j] << "\t";
+        }
+    }
+
+    cout << endl << endl;
+    cout << "Total Page Faults = " << faults << endl;
+    cout << "Total Hits = " << num_pages - faults << endl;
+    return 0;
+}
